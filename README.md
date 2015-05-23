@@ -8,7 +8,7 @@ A Ride Share finding API designed as a BowTie Backend Application. To use, conne
 
 | Column | Description |
 | ---    | --- |
-| id    | record identifier |
+| ride_id | record identifier |
 | user_id | STR BowTie user identifier |
 | start | LAT/LONG POINT |
 | stop | LAT/LONG POINT |
@@ -23,7 +23,7 @@ has_many :passengers
 
 | Column | Description |
 | --- | --- |
-| id | record identifier |
+| passenger_id | record identifier |
 | ride_id | foreign key (rides.id) - the ride this passenger is associated with |
 
 belongs_to :ride
@@ -65,7 +65,7 @@ Provides `Ride`s that the current user organized.
 {
   status: 'ok',
   rides: [{
-    id: 2234,                           # Ride identifier
+    ride_id: 2234,                      # Ride identifier
     user_id: '543',                     # Ride organizer id
     start: { 
              latitude: ,                # Starting latitude of the ride
@@ -85,7 +85,7 @@ Provides `Ride`s that the current user organized.
 }
 ```
 
-### DELETE /my/rides/:id.json
+### DELETE /my/rides/:ride_id.json
 
 Removes a `Ride` that the current user organized.
 
@@ -106,7 +106,7 @@ TODO: scheduling recurring rides based on a more complex schedule. We'll assume 
 {
   status: 'ok',
   rides: [{
-    id: 2234,                           # Ride identifier
+    ride_id: 2234,                      # Ride identifier
     user_id: '543',                     # Ride organizer id
     start: { 
              latitude: ,                # Starting latitude of the ride
@@ -125,10 +125,10 @@ TODO: scheduling recurring rides based on a more complex schedule. We'll assume 
 }
 ```
 
-### GET /rides/:id.json
+### GET /rides/:ride_id.json
 
-Provides public `Ride` details for the ride with the given `:id`.
+Provides public `Ride` details for the ride with the given `:ride_id`.
 
-### POST /rides/:id/passengers.json
+### POST /rides/:passenger_id/passengers.json
 
-Adds the current user as a passenger to the ride with the given `:id`. Operation will fail when the ride is already full.
+Adds the current user as a passenger to the ride with the given `:passenger_id`. Operation will fail when the ride is already full.
