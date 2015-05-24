@@ -4,4 +4,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Passenger extends Model {
 	public $table = "passenger";
+	public $primaryKey = "passenger_id";
 }
