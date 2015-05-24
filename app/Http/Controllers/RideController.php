@@ -44,6 +44,10 @@ class RideController extends Controller {
 				$passengers = DB::table("passenger")->where("ride_id", "=", $ride->ride_id)->lists("user_id");
 				$ride->passengers_count = count($passengers);
 				$ride->passengers = $passengers;
+
+				// delete created/update fields from public view
+				unset($ride->created_at);
+				unset($ride->updated_at);
 			}
 		} else {
 			// generate an error if not logged in
