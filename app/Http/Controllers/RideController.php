@@ -3,6 +3,7 @@
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\BowTieLogin;
+use App\Ride;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -76,7 +77,55 @@ class RideController extends Controller {
 	 */
 	public function store()
 	{
-		//
+		// set defaults
+		$status = 200;
+		$reply = array();
+
+		// query mySQL if the BowTie user id existys
+		if($this->isLoggedInWithBowTie() === true) {
+			$bowTieUserId = $this->getBowTieUserId();
+			$reply["status"] = "OK";
+
+			// sanitize parameters
+			var_dump($_POST);
+			$start_lat = filter_input(INPUT_POST, "start_lat", FILTER_VALIDATE_FLOAT);
+			$start_lon = filter_input(INPUT_POST, "start_lon", FILTER_VALIDATE_FLOAT);
+			$stop_lat = filter_input(INPUT_POST, "stop_lat", FILTER_VALIDATE_FLOAT);
+			$stop_lon = filter_input(INPUT_POST, "stop_lon", FILTER_VALIDATE_FLOAT);
+			$max_passengers_count = filter_input(INPUT_POST, "max_passengers_count", FILTER_VALIDATE_INT);
+			$description = filter_input(INPUT_POST, "description", FILTER_SANITIZE_STRING);
+			$starts_at = filter_input(INPUT_POST, "starts_at", FILTER_VALIDATE_INT);
+
+			// verify parameters make sense
+			if($start_lat === false || $start_lon === false || $stop_lat === false || $stop_lon === false ||
+				$max_passengers_count === false || empty($description) === true || $starts_at === false ||
+				$start_lon < -180.0 || $start_lon > 180.0 || $start_lat < -90.0 || $start_lat > 90.0 ||
+				$stop_lon < -180.0 || $stop_lon > 180.0 || $stop_lat < - 90.0 || $start_lat > 90.0 ||
+				$max_passengers_count <= 0 || $starts_at < 0 || $starts_at > 86400) {
+				$reply["status"] = "error";
+				$reply["message"] = "Invalid parameters. Verify parameters and try again.";
+			} else {
+				// save the ride to mySQL
+				$ride = new Ride();
+				$ride->user_id = $bowTieUserId;
+				$ride->start_lat = $start_lat;
+				$ride->start_lon = $start_lon;
+				$ride->stop_lat = $stop_lat;
+				$ride->stop_lon = $stop_lon;
+				$ride->starts_at = $starts_at;
+				$ride->max_passengers_count = $max_passengers_count;
+				$ride->description = $description;
+				$ride->save();
+				$reply["message"] = "Ride saved successfully.";
+			}
+		} else {
+			// generate an error if not logged in
+			$status = 401;
+			$reply["status"] = "error";
+			$reply["message"] = "You are not logged into Bow Tie. Please login and try again.";
+		}
+
+		return(response()->json($reply, $status));
 	}
 
 	/**
