@@ -15,6 +15,7 @@ class Passenger extends Migration {
 		Schema::create("passenger", function(Blueprint $passenger) {
 			$passenger->increments("passenger_id");
 			$passenger->integer("ride_id")->unsigned()->index();
+			$passenger->integer("user_id")->unsigned();
 			$passenger->timestamps();
 			$passenger->foreign("ride_id")->references("ride_id")->on("ride");
 		});

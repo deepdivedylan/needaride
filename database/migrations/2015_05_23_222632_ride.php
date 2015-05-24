@@ -16,12 +16,14 @@ class Ride extends Migration {
 			$ride->increments("ride_id")->unsigned();
 			$ride->integer("user_id")->unsigned();
 			$ride->timestamps();
+			$ride->decimal("start_lat", 9, 6);
+			$ride->decimal("start_lon", 9, 6);
+			$ride->decimal("stop_lat", 9 , 6);
+			$ride->decimal("stop_lon", 9, 6);
 			$ride->smallInteger("starts_at")->unsigned();
 			$ride->tinyInteger("max_passengers_count")->unsigned();
 			$ride->string("description", 1024);
 		});
-		DB::statement("ALTER TABLE ride ADD COLUMN start POINT NOT NULL AFTER updated_at");
-		DB::statement("ALTER TABLE ride ADD COLUMN stop POINT NOT NULL AFTER start");
 	}
 
 	/**
