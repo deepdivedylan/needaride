@@ -62,16 +62,6 @@ class RideController extends Controller {
 	}
 
 	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		//
-	}
-
-	/**
 	 * Store a newly created resource in storage.
 	 *
 	 * @return Response
@@ -88,7 +78,6 @@ class RideController extends Controller {
 			$reply["status"] = "OK";
 
 			// sanitize parameters
-			var_dump($_POST);
 			$start_lat = filter_input(INPUT_POST, "start_lat", FILTER_VALIDATE_FLOAT);
 			$start_lon = filter_input(INPUT_POST, "start_lon", FILTER_VALIDATE_FLOAT);
 			$stop_lat = filter_input(INPUT_POST, "stop_lat", FILTER_VALIDATE_FLOAT);

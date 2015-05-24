@@ -12,5 +12,5 @@
 */
 
 Route::get('/', 'WelcomeController@index');
-Route::resource('passenger', 'PassengerController', array('only' => array('destroy', 'index', 'show', 'store')));
+Route::resource('passenger', 'PassengerController', array('only' => array('destroy', 'store')));
 Route::resource('ride', 'RideController', array('only' => array('destroy', 'index', 'show', 'store')));
