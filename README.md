@@ -45,7 +45,7 @@ Status code 200 will be returned for all requests that were processed by the API
 
 A 403 indicates an authorization failure, and should direct the user to create a new session or register.
 
-### POST /my/rides.json
+### POST /rides
 
 * param: ride[start][latitude] (required, type: double)
 * param: ride[start][longitude] (required, type: double)
@@ -57,7 +57,7 @@ A 403 indicates an authorization failure, and should direct the user to create a
 
 Creates a new `Ride` object. The current user becomes the organizer for the Ride.
 
-### GET /my/rides.json
+### GET /rides
 
 Provides `Ride`s that the current user organized.
 
@@ -85,7 +85,7 @@ Provides `Ride`s that the current user organized.
 }
 ```
 
-### DELETE /my/rides/:ride_id.json
+### DELETE /rides/:ride_id.json
 
 Removes a `Ride` that the current user organized.
 
@@ -129,6 +129,6 @@ TODO: scheduling recurring rides based on a more complex schedule. We'll assume 
 
 Provides public `Ride` details for the ride with the given `:ride_id`.
 
-### POST /rides/:passenger_id/passengers.json
+### POST /rides/:passenger_id
 
 Adds the current user as a passenger to the ride with the given `:passenger_id`. Operation will fail when the ride is already full.
