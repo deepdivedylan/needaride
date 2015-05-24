@@ -4,6 +4,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\BowTieLogin;
 use App\Ride;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,7 @@ class RideController extends Controller {
 		$status = 200;
 		$reply = array();
 
-		// query mySQL if the BowTie user id existys
+		// query mySQL if the BowTie user id exists
 		if($this->isLoggedInWithBowTie() === true) {
 			$bowTieUserId = $this->getBowTieUserId();
 			$reply["status"] = "OK";
@@ -81,7 +82,7 @@ class RideController extends Controller {
 		$status = 200;
 		$reply = array();
 
-		// query mySQL if the BowTie user id existys
+		// query mySQL if the BowTie user id exists
 		if($this->isLoggedInWithBowTie() === true) {
 			$bowTieUserId = $this->getBowTieUserId();
 			$reply["status"] = "OK";
@@ -136,7 +137,40 @@ class RideController extends Controller {
 	 */
 	public function show($id)
 	{
-		//
+		// set defaults
+		$status = 200;
+		$reply = array();
+
+		// query mySQL if the BowTie user id exists
+		if($this->isLoggedInWithBowTie() === true) {
+			$bowTieUserId = $this->getBowTieUserId();
+			$reply["status"] = "OK";
+
+			// sanitize input
+			$id = filter_var($id, FILTER_VALIDATE_INT);
+			if($id === false) {
+				$reply["status"] = "error";
+				$reply["message"] = "Invalid parameters. Verify parameters and try again.";
+			} else {
+				try {
+					// grab the ride from mySQL
+					$ride = Ride::findorFail($id);
+					$reply = $ride;
+					$reply->status = "OK";
+				} catch(ModelNotFoundException $modelNotFound) {
+					// report the ride does not exist
+					$reply["status"] = "error";
+					$reply["message"] = "Ride not found. Verify parameters and try again.";
+				}
+			}
+		} else {
+			// generate an error if not logged in
+			$status = 401;
+			$reply["status"] = "error";
+			$reply["message"] = "You are not logged into Bow Tie. Please login and try again.";
+		}
+
+		return(response()->json($reply, $status));
 	}
 
 	/**
