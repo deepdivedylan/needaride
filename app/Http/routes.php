@@ -12,10 +12,5 @@
 */
 
 Route::get('/', 'WelcomeController@index');
-
-Route::get('home', 'HomeController@index');
-
-Route::controllers([
-	'auth' => 'Auth\AuthController',
-	'password' => 'Auth\PasswordController',
-]);
+Route::resource('passenger', 'PassengerController', array('only' => array('destroy', 'index', 'store')));
+Route::resource('ride', 'RideController', array('only' => array('destroy', 'index', 'store')));
