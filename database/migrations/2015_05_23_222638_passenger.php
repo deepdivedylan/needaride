@@ -17,7 +17,7 @@ class Passenger extends Migration {
 			$passenger->integer("ride_id")->unsigned()->index();
 			$passenger->integer("user_id")->unsigned();
 			$passenger->timestamps();
-			$passenger->foreign("ride_id")->references("ride_id")->on("ride");
+			$passenger->foreign("ride_id")->references("ride_id")->on("ride")->onDelete("cascade")->onUpdate("cascade");
 		});
 	}
 
