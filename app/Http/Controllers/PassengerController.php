@@ -18,8 +18,7 @@ class PassengerController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
-	{
+	public function store() {
 		// set defaults
 		$status = 200;
 		$reply = array();
@@ -67,8 +66,7 @@ class PassengerController extends Controller {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
-	{
+	public function destroy($id) {
 		// set defaults
 		$status = 200;
 		$reply = array();

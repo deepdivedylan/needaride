@@ -28,28 +28,48 @@ class RideController extends Controller {
 			$bowTieUserId = $this->getBowTieUserId();
 			$reply["status"] = "OK";
 			$reply["rides"] = DB::table("ride")->where("user_id", "=", $bowTieUserId)->get();
+			$reply["rides"] = $this->reformatRideArray($reply["rides"]);
+		} else {
+			// generate an error if not logged in
+			$status = 401;
+			$reply["status"] = "error";
+			$reply["message"] = "You are not logged into Bow Tie. Please login and try again.";
+		}
 
-			// reformat the GPS coordinates
-			$deleteKeys = array("start_lat", "start_lon", "stop_lat", "stop_lon");
-			foreach($reply["rides"] as $ride) {
-				$start = array("latitude" => $ride->start_lat, "longitude" => $ride->start_lon);
-				$stop = array("latitude" => $ride->stop_lat, "longitude" => $ride->stop_lon);
-				$ride->start = $start;
-				$ride->stop = $stop;
+		return(response()->json($reply, $status));
+	}
 
-				// delete the raw mySQL data from this representation
-				foreach($deleteKeys as $key) {
-					unset($ride->$key);
+	/**
+	 * Searches for existing resources in storage
+	 *
+	 * @return Response
+	 **/
+	public function search() {
+		// set defaults
+		$status = 200;
+		$reply = array();
+
+		// query mySQL if the BowTie user id exists
+		if($this->isLoggedInWithBowTie() === true) {
+			$bowTieUserId = $this->getBowTieUserId();
+			$reply["status"] = "OK";
+
+			// sanitize parameters
+			$starts_at = filter_input(INPUT_GET, "starts_at", FILTER_VALIDATE_INT);
+
+			// verify parameters make sense
+			if($starts_at === false || $starts_at < 0 || $starts_at > 86400) {
+				$reply["status"] = "error";
+				$reply["message"] = "Invalid parameters. Verify parameters and try again.";
+			} else {
+				// loop sunrise back to the previous night if we're somewhere near midnight...
+				// ...need a ride back from La Cumbre, James? ;)
+				$sunrise = $starts_at - 3600;
+				if($sunrise < 0) {
+					$sunrise = $sunrise + 86400;
 				}
-
-				// grab the passengers for this ride
-				$passengers = DB::table("passenger")->where("ride_id", "=", $ride->ride_id)->lists("user_id");
-				$ride->passengers_count = count($passengers);
-				$ride->passengers = $passengers;
-
-				// delete created/update fields from public view
-				unset($ride->created_at);
-				unset($ride->updated_at);
+				$reply["rides"] = DB::table("ride")->where("starts_at", ">", $starts_at)->where("starts_at", "<=", $sunrise)->get();
+				$reply["rides"] = $this->reformatRideArray($reply["rides"]);
 			}
 		} else {
 			// generate an error if not logged in
@@ -66,8 +86,7 @@ class RideController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function store()
-	{
+	public function store() {
 		// set defaults
 		$status = 200;
 		$reply = array();
@@ -209,5 +228,37 @@ class RideController extends Controller {
 		}
 
 		return(response()->json($reply, $status));
+	}
+
+	/**
+	 * reformats an array of rides into the canonical representation
+	 *
+	 * @param array $rides array of Ride directly from mySQL
+	 * @return array reformatted array
+	 **/
+	protected function reformatRideArray(array $rides) {
+		// reformat the GPS coordinates
+		$deleteKeys = array("start_lat", "start_lon", "stop_lat", "stop_lon");
+		foreach($rides as $ride) {
+			$start = array("latitude" => $ride->start_lat, "longitude" => $ride->start_lon);
+			$stop = array("latitude" => $ride->stop_lat, "longitude" => $ride->stop_lon);
+			$ride->start = $start;
+			$ride->stop = $stop;
+
+			// delete the raw mySQL data from this representation
+			foreach($deleteKeys as $key) {
+				unset($ride->$key);
+			}
+
+			// grab the passengers for this ride
+			$passengers = DB::table("passenger")->where("ride_id", "=", $ride->ride_id)->lists("user_id");
+			$ride->passengers_count = count($passengers);
+			$ride->passengers = $passengers;
+
+			// delete created/update fields from public view
+			unset($ride->created_at);
+			unset($ride->updated_at);
+		}
+		return($rides);
 	}
 }
