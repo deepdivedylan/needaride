@@ -174,28 +174,6 @@ class RideController extends Controller {
 	}
 
 	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		//
-	}
-
-	/**
 	 * Remove the specified resource from storage.
 	 *
 	 * @param  int  $id
@@ -203,7 +181,44 @@ class RideController extends Controller {
 	 */
 	public function destroy($id)
 	{
-		//
-	}
+		// set defaults
+		$status = 200;
+		$reply = array();
 
+		// query mySQL if the BowTie user id exists
+		if($this->isLoggedInWithBowTie() === true) {
+			$bowTieUserId = $this->getBowTieUserId();
+			$reply["status"] = "OK";
+
+			// sanitize input
+			$id = filter_var($id, FILTER_VALIDATE_INT);
+			if($id === false) {
+				$reply["status"] = "error";
+				$reply["message"] = "Invalid parameters. Verify parameters and try again.";
+			} else {
+				try {
+					// delete the ride from mySQL
+					$ride = Ride::findorFail($id);
+					$reply["status"] = "OK";
+					if($ride->user_id === $bowTieUserId) {
+						$ride->delete();
+						$reply["message"] = "Ride successfully deleted.";
+					} else {
+						$reply["message"] = "Ride can only be deleted by the ride owner.";
+					}
+				} catch(ModelNotFoundException $modelNotFound) {
+					// report the ride does not exist
+					$reply["status"] = "error";
+					$reply["message"] = "Ride not found. Verify parameters and try again.";
+				}
+			}
+		} else {
+			// generate an error if not logged in
+			$status = 401;
+			$reply["status"] = "error";
+			$reply["message"] = "You are not logged into Bow Tie. Please login and try again.";
+		}
+
+		return(response()->json($reply, $status));
+	}
 }
