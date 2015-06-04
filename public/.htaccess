@@ -8,5 +8,5 @@
     # Handle Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)/?$ /~dmcdonald21/needaride/public/index.php/$1 [L]
+    RewriteRule ^(.*)/?$ /~jkassemi/needaride/public/index.php/$1 [L]
 </IfModule>
